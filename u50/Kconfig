@@ -1,0 +1,10 @@
+#
+# u50 network device configuration
+#
+
+config U50
+	tristate "Echelon U50 support"
+	---help---
+	  To compile this driver as a module, choose M here. The module
+	  will be called u50.
+

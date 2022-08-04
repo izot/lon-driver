@@ -1,21 +1,6 @@
-include ../../../Apollo.cfg
-
-KMODS = u61 u50
-KDIR = ../../../$(SYSROOT)/usr/src/linux-headers-$(KVERSION)
-ifeq ($(KARCH),armhf)
-	USE_ARCH=arm
-else
-	USE_ARCH=$(KARCH)
-endif
-
-all: $(ARCH)
-
-$(ARCH): $(KMODS:%=%.ko)
-
-$(KMODS:%=%.ko):
-	sudo ARCH=$(USE_ARCH) CROSS_COMPILE=$(CROSS_COMPILE) make -C $(KDIR) M=`pwd`/$(@:%.ko=%) modules
-
-install:
+EXTRA_CFLAGS += -I$(src)/include -DU61_KERNEL -DU50_KERNEL -g
+obj-m += u61.o
+u61-objs :=  U61Module.o U61Link.o packet_util.o U61Osal.o ipv6_ls_to_udp.o ip_util.o U61Log.o
 
 clean:
-	for i in $(KMODS) ; do (cd $$i && make $@) ; done
+	sudo rm -rf .??*.cmd .tmp_versions *.ko *.o Module.symvers modules.order

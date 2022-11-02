@@ -5,6 +5,6 @@ This repository includes the following directories:
 
 - lonifd -- LON Interface Daemon: creates a Linux LON network interface when a compatible LON USB network interface is discovered.
 
-- U50 -- Serial USB LON Driver: implements a LON driver for a LON USB network interface that incorporate a serial USB interface.  Compatible with the EnOcean U60 FT USB Network Interface.
+- u50 -- Serial USB LON Driver: implements a LON driver for a LON USB network interface that incorporate a serial USB interface.  Compatible with the EnOcean U60 FT USB Network Interface.
 
-- U60 -- Parallel USB LON Driver:  implements a LON driver for a LON USB network interface that incorporate a parallel USB interface.  Compatible with the EnOcean U10 FT, U20 PL, U60 TP-1250, and U70 PL USB Network Interfaces.
+- u61 -- Parallel USB LON Driver:  implements a LON driver for a LON USB network interface that incorporate a parallel USB interface.  Compatible with the EnOcean U10 FT, U20 PL, U60 TP-1250, and U70 PL USB Network Interfaces.

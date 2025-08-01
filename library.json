@@ -1,0 +1,14 @@
+{
+  "name": "lon-driver",
+  "version": "1.0.0",
+  "build": {
+    "srcFilter": [
+      "+<u50/>",
+      "-<lonifd/>",
+      "-<u61/>"
+    ],
+    "flags": [
+      "-Iu50/include"
+    ]
+  }
+}

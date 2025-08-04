@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0 AND MIT
-// Copyright © 2021-2022 Dialog Semiconductor
+// Copyright © 2021-2025 EnOcean
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in 
@@ -22,7 +22,7 @@
 /****************************************************************************
  *
  *  FILE DESCRIPTION:  
- *    This file implements the translation between LonTalk V0 or V2 and LS/UDP
+ *    This file implements the translation between LON V0 or V2 and LON/IP UDP
  *
  ***************************************************************************/
 
@@ -39,9 +39,9 @@
 #include <linux/string.h>
 #include <linux/types.h>
 #include <asm/byteorder.h>
-// Address Formats are based on those found in the LonTalk packet.
+// Address Formats are based on those found in the LON packet.
 // These are used for incoming addresses.  The first 4 match
-// the address formats used in the LonTalk packet.
+// the address formats used in the LON packet.
 typedef enum
 {
     LT_AF_BROADCAST			= 0,
@@ -60,9 +60,9 @@ typedef enum
 #include "net/uip.h"
 #define htons(x) UIP_HTONS(x)
 
-// Address Formats are based on those found in the LonTalk packet.
+// Address Formats are based on those found in the LON packet.
 // These are used for incoming addresses.  The first 4 match
-// the address formats used in the LonTalk packet.
+// the address formats used in the LON packet.
 typedef enum
 {
     LT_AF_BROADCAST			= 0,
@@ -95,7 +95,7 @@ typedef enum
 #endif
 
 #ifndef IPV6_BACLON_MSG_CODE
-// The message code used to send and receive BAKNET UDP messages
+// The message code used to send and receive BACnet/FT UDP messages
 #define IPV6_BACLON_MSG_CODE       0x0E  // REMINDER:  Need to find out what the real value is!
 #endif
 
@@ -110,8 +110,8 @@ const uint8_t domainLengthTable[4] = { 0, 1, 3, 6 };
 
 #if UIP_CONF_IPV6
 
-// The Lontalk services multicast prefix which appears at offsets 8-13 of
-// an LS MC adderess
+// The LON services multicast prefix which appears at offsets 8-13 of
+// an LON/IP multicast adderess
 const uint8_t ipv6_ls_multicast_prefix[] = 
 { 0x4C, 0x53, 0x49, 0x50, 0x56, 0x36 };
 
@@ -141,7 +141,6 @@ const uint8_t ipv6_zero_len_domain_prefix[] = { IPV6_DOMAIN_LEN_0_PREFIX_0, IPV6
     domainLen:  Length of the domain (0 to 6)
     subnet:     LS subnet ID
     pAddr:      Pointer to IPV6 address to store the prefix
-
 *****************************************************************************/
 void ipv6_gen_ls_prefix(const uint8_t *pDomainId, uint8_t domainLen, uint8_t subnet, uint8_t *pAddr)
 {
@@ -201,9 +200,8 @@ void ipv6_gen_ls_prefix(const uint8_t *pDomainId, uint8_t domainLen, uint8_t sub
                     IPV6_LS_MC_ADDR_TYPE_GROUP
     pDomainId:      Pointer to the domain ID (IPV6 only)
     domainLen:      Length of the domain (0 to 6) (IPV6 only)
-    subnetOrGroup:  LS subnet ID or group ID
-    pAddr:      Pointer to IPV6 address to store the prefix
-
+    subnetOrGroup:  LON/IP subnet ID or group ID
+    pAddr:          Pointer to IPV6 address to store the prefix
 *****************************************************************************/
 void ipv6_gen_ls_mc_addr(uint8_t type, 
 #if UIP_CONF_IPV6
@@ -240,7 +238,6 @@ void ipv6_gen_ls_mc_addr(uint8_t type,
     subnetId:       LS subnet ID 
     nodeId:         LS node ID
     pAddr:          Pointer to a buffer to store the IPV6 address
-
 *****************************************************************************/
 void ipv6_gen_ls_subnet_node_addr(const uint8_t *pDomainId, uint8_t domainLen, 
                                   uint8_t subnetId, uint8_t nodeId, uint8_t *pAddr)
@@ -433,7 +430,7 @@ uint16_t ipv6_convert_ltvx_to_ls_udp(uint8_t *pNpdu, uint16_t pduLen,
     #endif
             {
                 // Subnet is 0. This is a neuron ID addressed message that floods the network.
-                // Use the broadcast address and include the NEURON ID in the payload
+                // Use the broadcast address and include the Unique ID in the payload
                 lsUdpHdrByte1 |= IPV6_LSUDP_NPDU_ADDR_FMT_BROADCAST_NEURON_ID;
                 ipv6_gen_ls_mc_addr(IPV6_LS_MC_ADDR_TYPE_BROADCAST, 
     #if UIP_CONF_IPV6
@@ -455,7 +452,7 @@ uint16_t ipv6_convert_ltvx_to_ls_udp(uint8_t *pNpdu, uint16_t pduLen,
     {
         uint8_t arbitrarySourceAddressLen = 0;
         uint8_t arbitrarySourceAddress[IPV6_MAX_ARBITRARY_SOURCE_ADDR_LEN];
-        // Copy the enclosed PDU following the LS/UDP header
+        // Copy the enclosed PDU following the LON/IP UDP header
         pduLen -= domainOffset+domainLen;
         if (pSourceAddr != NULL)
         {
@@ -467,7 +464,7 @@ uint16_t ipv6_convert_ltvx_to_ls_udp(uint8_t *pNpdu, uint16_t pduLen,
         {
             lsUdpHdrByte1 |= (1 << IPV6_LSUDP_NPDU_BITPOS_PRIORITY);
         }
-        // Set the version to use LS legacy or enhanced mode based on the LT version.
+        // Set the version to use LON/IP legacy or enhanced mode based on the LON/IP version.
         if (IPV6_LT_IS_VER_LS_LEGACY_MODE(pNpdu[IPV6_LTVX_NPDU_IDX_TYPE]))
         {
             pNpdu[0] = IPV6_LSUDP_UDP_VER_LS_LEGACY << IPV6_LSUDP_NPDU_BITPOS_UDPVER;
@@ -555,7 +552,7 @@ uint16_t ipv6_convert_ltvx_to_ls_udp(uint8_t *pNpdu, uint16_t pduLen,
   Function:  ipv6_convert_ls_udp_to_ltvx
    
   Summary:
-    Convert the LS/UDP packet found in the Contiki global uip_buf to an LTV0
+    Convert the LON/IP UDP packet found in the Contiki global uip_buf to an LTV0
     or LTV2 NPDU and return it in the buffer provided.
 
   Parameters:
@@ -582,8 +579,8 @@ void ipv6_convert_ls_udp_to_ltvx(uint8_t ipv6, uint8_t *pUdpPayload, uint16_t ud
     uint8_t *pLsUdpPayload = pUdpPayload;
     uint8_t *p = pNpdu;
     uint8_t npduHdr;
-    uint8_t lsUdpHdr0 = 0; // First byte of LS/UDP header.
-    uint8_t lsUdpHdr1;   // Second byte of LS/UDP header
+    uint8_t lsUdpHdr0 = 0; // First byte of LON/IP UDP header.
+    uint8_t lsUdpHdr1;   // Second byte of LONIP UDP header
     uint8_t domainLen;
     const uint8_t *pDomain;
     uint8_t failed = 0;
@@ -591,7 +588,7 @@ void ipv6_convert_ls_udp_to_ltvx(uint8_t ipv6, uint8_t *pUdpPayload, uint16_t ud
     if (ipv6)
     {
         failed = 1;
-        //printf("ipv6 is not supported yet\n");
+        //printf("ipv6 is not supported\n");
     }
     else
     {
@@ -638,7 +635,6 @@ void ipv6_convert_ls_udp_to_ltvx(uint8_t ipv6, uint8_t *pUdpPayload, uint16_t ud
         }
     }
 
-
     if (!failed)
     {
         // Set version (0), pdu format and domain length
@@ -646,7 +642,7 @@ void ipv6_convert_ls_udp_to_ltvx(uint8_t ipv6, uint8_t *pUdpPayload, uint16_t ud
         if ((lsUdpHdr0 & IPV6_LSUDP_NPDU_MASK_UDPVER) == 
             (IPV6_LSUDP_UDP_VER_LS_ENHANCED << IPV6_LSUDP_NPDU_BITPOS_UDPVER))
         {
-            // Whoops, need to set the LT version to enhanced mode.
+            // Whoops, need to set the LON version to enhanced mode.
             npduHdr |= (IPV6_LT_VER_ENHANCED << IPV6_LTVX_NPDU_BITPOS_VER);
         }
         domainLen = 0xff;
@@ -806,7 +802,7 @@ NEURON_IPV6_WARNON_NO_EFFECT
     else
     {
         uint16_t pduLen;
-        // Calculate the pduLen by subtracting the UDP payload and LS/UDP headers from udplen.
+        // Calculate the pduLen by subtracting the UDP payload and LON/IP UDP headers from udplen.
         pduLen = udpLen - (pLsUdpPayload - pUdpPayload);
 
         pNpdu[IPV6_LTVX_NPDU_IDX_TYPE] = npduHdr;
@@ -834,7 +830,7 @@ NEURON_IPV6_WARNON_NO_EFFECT
             // subnet/node address expliicitly. We won't be sending an ack or response, so even if there
             // is a better address to use the sending device won't learn it. 
 
-            // Note that it should be sufficient to determine whether a unicast or multicast address 
+            // It should be sufficient to determine whether a unicast or multicast address 
             // was used.  However, sockets doesn't really provide that information, so we can't always tell.
             // So generate the ls derived IP address, and see if it is supported, and send the announcement
             // in that case as well.
@@ -844,7 +840,7 @@ NEURON_IPV6_WARNON_NO_EFFECT
 #else
             uint8_t lsDerivedAddr[4];
 #endif
-            // we know that the Vx message uses subnet node address, so we know where the domain ID is.
+            // We know that the Vx message uses subnet node address, so we know where the domain ID is.
             ipv6_gen_ls_subnet_node_addr(&pNpdu[IPV6_LTVX_NPDU_IDX_DEST_NODE+1], domainLen, 
                                          pNpdu[IPV6_LTVX_NPDU_IDX_DEST_SUBNET], pNpdu[IPV6_LTVX_NPDU_IDX_DEST_NODE],
                                          lsDerivedAddr);
@@ -903,7 +899,7 @@ NEURON_IPV6_WARNON_NO_EFFECT
 
   Parameters:
     lsSenderHandle:     A handle used for sending messages 
-    pDesiredIpAddress:  Pointer LS derived IP address that this device should
+    pDesiredIpAddress:  Pointer LON/IP derived IP address that this device should
                         ideally use.
 *****************************************************************************/
 void ipv6_send_multicast_announcement(void *lsSenderHandle,
@@ -1190,7 +1186,6 @@ uint8_t ipv6_gen_compressed_arbitrary_udp_header(const uint8_t *pSourceAddr, uin
     return (uint8_t)(p - pNpduHeader);
 }
 
-
 /******************************************************************************
   Function:  ipv6_find_arb_udp_header_offset
    
@@ -1357,4 +1352,4 @@ uint8_t ipv6_inflate_arbitrary_udp_header(const uint8_t *pNpduHeader,
 }
 
 
-#endif
+#endif // u50/ipv6_ls_to_udp.c

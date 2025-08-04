@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0 AND MIT
-// Copyright © 2021-2022 Dialog Semiconductor
+// Copyright © 2021-2025 EnOcean
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in 
@@ -20,8 +20,6 @@
 // SOFTWARE.
 
 ///////////////////////////////////////////////////////////////////////////////
-//
-//
 // Definitions private to the DLL.
 ///////////////////////////////////////////////////////////////////////////////
 #pragma once
@@ -30,7 +28,7 @@
 #include "platform.h"
 #include "U50Driver.h"
 
-// For now we just run at this baud rate:
+// For now we just run at this bit rate:
 #define SMPBAUD						115200
 
 void LDDebugError(LPCSTR szFormat, ... );
@@ -161,8 +159,8 @@ typedef struct
 #define nicbMODE_L5			0xD0
 #define nicbMODE_L2			0xD1
 #define nicbSSTATUS			0xE0
-// This is a ULTA command that this driver hooks:
-#define niLMODE				0xE5	// ULTA: mode follows
+// This is a USB network interface command that this driver hooks:
+#define niLMODE				0xE5	// USB network interface: mode follows
 
 #define	nicbERROR			0x30
 

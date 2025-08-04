@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0 AND MIT
-// Copyright © 2021-2022 Dialog Semiconductor
+// Copyright © 2021-2025 EnOcean
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in 
@@ -23,7 +23,7 @@
  *
  *  FILE DESCRIPTION:  
  *      This header file contains the definitions and function prototypes
- *      used to translate between LonTalk V0 or V2 and LS/UDP
+ *      used to translate between LON V0 or V2 and LON/IP
  *
  ***************************************************************************/
 #ifndef _IPV6_LS_TO_UDP_H
@@ -47,18 +47,16 @@ extern "C" {            /* Assume C declarations for C++ */
 #endif
 
 // Time To Live for IPV4 Multicast. 
-#define IPV6_MC_TTL_FOR_IPV4 32 // Restricted to the same site, organization or department
+#define IPV6_MC_TTL_FOR_IPV4 32 // Restricted to the same site, organization, or department
 
 
-    // LonTalk Service multicast type.  This is found in offset 14 of an
-    // LS MC address
+ // LonTalk Service multicast type.  This is found in offset 14 of a LON/IP multicast address.
 #define IPV6_LS_MC_ADDR_TYPE_BROADCAST 0
 #define IPV6_LS_MC_ADDR_TYPE_GROUP     1
 
-    // UDP port used for LS/UDP
-    // Note that this  port was originaly allocated for use by LNS remote lightweight clients.  However
-    // LNS only uses this port for TCP, so LS/UDP can use this port for UDP.
-#define IPV6_LS_UDP_PORT           2541
+// UDP port used for LON/IP.  This port was originaly allocated for use by LNS remote lightweight
+// clients.  However, LNS only uses this port for TCP, so LON/IP can use this port for UDP.
+#define IPV6_LS_UDP_PORT               2541
 
 // The IPV6_LTVX_NPDU_IDX_ definitions represent the byte offset of the first several fields in a version 0 NPDU.
 //
@@ -139,12 +137,12 @@ extern "C" {            /* Assume C declarations for C++ */
 #define ENCLOSED_PDU_TYPE_AUTH 2
 #define ENCLOSED_PDU_TYPE_APDU 3
 
-// Supported LT versions
+// Supported LON versions
 #define IPV6_LT_VER_LEGACY          0       // 4 bit transaction IDs
-#define IPV6_LT_VER_ENCAPSULATED_IP 1       // Arbitrary IP traffic on a native LonTalk link
+#define IPV6_LT_VER_ENCAPSULATED_IP 1       // Arbitrary IP traffic on a native LON link
 #define IPV6_LT_VER_ENHANCED        2       // 12 bit transaction IDs.
 
-// Some LonTalk links compress arbitrary UDP packets usng LS enhanced mode
+// Some LON links compress arbitrary UDP packets usng LON/IP enhanced mode
 #define IPV6_LT_VER_ARB_UDP         IPV6_LT_VER_ENHANCED  
 
 #define IPV6_LT_VER_MATCHES(value, ver) ((value & IPV6_LTVX_NPDU_MASK_VER) == ((ver) << IPV6_LTVX_NPDU_BITPOS_VER))
@@ -195,7 +193,6 @@ extern "C" {            /* Assume C declarations for C++ */
 // |===|======|=======|=====|
 // |Ver|PDUFmt|AddrFmt|DmLen|
 // ==========================
-
 
 // The following definitions are used to access fields within a LS/UDP NPDU
 //     

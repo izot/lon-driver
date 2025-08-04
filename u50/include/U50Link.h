@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0 AND MIT
-// Copyright © 2021-2022 Dialog Semiconductor
+// Copyright © 2021-2025 EnOcean
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in 
@@ -27,7 +27,7 @@
 #include "U50Driver.h"
 #include "U50Defs.h"
 
-#define N_PIG_COUNT		5
+#define N_PIG_COUNT			5
 #define SMP_MSECS_KA		(1000*5)
 #define SMP_MSECS_REJECT	(1000*10)
 #define SMP_MSECS_LOGT		(1000*60)

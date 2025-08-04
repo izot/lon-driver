@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0 AND MIT
-// Copyright © 2022 Dialog Semiconductor
+// Copyright © 2022-2025 EnOcean
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in 
@@ -43,7 +43,7 @@
 #include <sys/stat.h>
 #include <systemd/sd-daemon.h>
 #include <sys/file.h>
-#include <time.h>                   /* for time( )  */
+#include <time.h>                   /* for time()  */
 
 /*
     See http://ftdi-usb-sio.sourceforge.net/#sec13
@@ -94,7 +94,7 @@ typedef enum {
 #define DEFAULT_PREFIX 44
 volatile uint8_t ipv6_domain_len_1_prefix = DEFAULT_PREFIX;
 
-// This routine create a lon network interface using the Line disciplines
+// This function create a LON network interface using the Line disciplines
 // return < 0 if failure
 static int setup_serial_interface(char* devstr, int ldisc) {
     int fd;
@@ -291,7 +291,7 @@ typedef struct {
     } params;
 } xcvr_param_type;
 
-                     //clks pin  prea pktc bet2 xmip rcip ndpr chpr fltr cdet			
+                  //clks pin  prea pktc bet2 xmip rcip ndpr chpr fltr cdet			
 byte PL_20N_10[] = {0x05,0x5E,0x00,0x3F,0xA6,0x77,0x67,0x00,0x08,0x0E,0x01};
 byte PL_20C_10[] = {0x05,0x5E,0x00,0x3F,0xA6,0x77,0x67,0x00,0x08,0x4A,0x00};
 
@@ -632,7 +632,7 @@ static int read_xcvr_id(int sockfd, int ldisc)
     int ret;
 
     // Send the network management message to read the transceiver ID
-    //typedef struct ANM_slta_gen_request {
+    // typedef struct ANM_slta_gen_request {
     //    byte    code;                // 0x7D
     //    byte    sub_code;            // 1 - use enum ANM_sub_code
     //    byte    app_command;        // 1 - use enum ANM_slta_code
@@ -931,9 +931,9 @@ int find_nid_index(uint8_t *nid, char* name, const char *xcvr_type, char* devstr
         fclose(f);
         return -1;
     }
-    // The following prevents the race condition, because if a program holds
-    // a lock on a file that is still on the file system, every other program
-    // that has a leftover file will have a wrong inode number.
+    // The following prevents a race condition, where a program holding
+    // a lock on a file that is still on the file system causing every
+    // other program that has a leftover file will have a wrong inode number.
     struct stat st0, st1;
     fstat(fd, &st0);
     stat(NID_INDEX_FILE, &st1);
@@ -1080,7 +1080,7 @@ static void assign_default_address(int ldisc, char* devstr) {
     int tries = 5;
     while (find_nid_index(nidbuf, ifbuf, xcvr_name[xcvr_id], devstr) && tries-- > 0)
         sleep(2);
-    //neuron id read, set down so name can change and ip can be set
+    // Unique ID read, set down so name can change and ip can be set
     ifr.ifr_flags &= !(IFF_UP | IFF_RUNNING);
     if (ioctl(s, SIOCSIFFLAGS, &ifr) < 0) {
         perror("set flags");
@@ -1182,7 +1182,7 @@ static int setup_lon_iface(char* devstr, int ldisc) {
     return lonsd;
 }
 
-// Returns the number of lon devices are currently connected
+// Returns the number of LON devices are currently connected
 static int lon_device_count()
 {
     int index, count = 0;
@@ -1330,7 +1330,7 @@ int main(int argc, char* argv[]) {
 
 	if (update_CENELEC)
     {
-        // Update the CENELEC protocol of the lon device
+        // Update the CENELEC protocol of the LON device
         memset(xcvrtypestr, 0, sizeof(xcvrtypestr));
         exitVal = find_xcvr_type(londevice, xcvrtypestr);
         // Check if( xcvr_id == PL_20C || xcvr_id == PL_20N )
@@ -1372,7 +1372,7 @@ int main(int argc, char* argv[]) {
     }
 	else if (read_nid)
     {
-        // Only needs to read the neuron ID
+        // Only needs to read the Unique ID
         uint8_t nid_buf[6];
         exitVal = read_neuron_id(nid_buf, -1);
         printf("%02x:%02x:%02x:%02x:%02x:%02x\n",
@@ -1381,9 +1381,9 @@ int main(int argc, char* argv[]) {
         return exitVal;
     }
 
-    // DOn't become a daemon, it's incompatible with systemd Type=notify services!
+    // Don't become a daemon, it's incompatible with systemd Type=notify services!
 
-    // Check to find out if this is the only lon device attached
+    // Check to find out if this is the only LON device attached
     londevicecount = lon_device_count();
     syslog(LOG_DEBUG, "lon_device_count = %d", londevicecount);
 

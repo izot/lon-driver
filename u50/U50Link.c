@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0 AND MIT
-// Copyright © 2021-2022 Dialog Semiconductor
+// Copyright © 2021-2025 EnOcean
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in 
@@ -128,6 +128,7 @@ WORD endianSwap16(WORD in)
 {
 	return (in >> 8) | (in << 8);
 }
+
 //////////////////////////////////////////////////////////////////////
 WORD lonvxdMsgLength(pLONVXD_Buffer pvxdb)
 {
@@ -139,6 +140,7 @@ WORD lonvxdMsgLength(pLONVXD_Buffer pvxdb)
 		return endianSwap16(pexb->ExtLength);
 	}
 }
+
 //////////////////////////////////////////////////////////////////////
 // Include length fields
 WORD lonvxdTotalLength(pLONVXD_Buffer pvxdb)
@@ -621,7 +623,6 @@ void smpDlMsgNow(struct U50LinkState *state)
     freeMemory(dlBuffer);
 }
 
-
 //////////////////////////////////////////////////////////////////////
 // Request a CP.  We don't do it directly since we only want these sent via the TX thread.
 //////////////////////////////////////////////////////////////////////
@@ -821,7 +822,6 @@ void smpUplinkQueue(struct U50LinkState *state, LONVXD_Buffer *lvdp)
 	SIG_NOTIFIER(state->m_hClientEvent);
 #endif
 }
-
 
 //////////////////////////////////////////////////////////////////////
 // Take a look at a Code Packet, read at gslp.pULB.
@@ -1590,7 +1590,7 @@ DWORD TheReaderThread(struct U50LinkState *state)
 				break;
 		} // end of if/else UplinkLeftovers.
 
-		// at the beginning of any NEW serial input start a total uplink timer to limit
+		// At the beginning of any NEW serial input start a total uplink timer to limit
 		// how long we stay in the non-idle state.
 		if (state->m_RxCountRead && state->m_LlpRxState == LLPSIdle)
 		{
@@ -1605,7 +1605,7 @@ DWORD TheReaderThread(struct U50LinkState *state)
 			// smpKickWriter();
 		}
 
-		// don't get stuck in the non-idle state if a partial input shows up
+		// Don't get stuck in the non-idle state if a partial input shows up
 		if ((state->m_LlpRxState != LLPSIdle || state->m_LlpRxOffset) && TMR_Elapsed(state->m_ReadStartTimer, READ_TIMEOUT))
 		{
 			smpResetReader(state);

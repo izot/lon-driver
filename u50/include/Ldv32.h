@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0 AND MIT
-// Copyright © 2021-2022 Dialog Semiconductor
+// Copyright © 2021-2025 EnOcean
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in 
@@ -21,7 +21,7 @@
 
 /*********************************************************************
  *
- * Echelon OpenLDV (TM) 4.0  API
+ * EnOcean OpenLDV (TM) 4.0  API
  *
  ********************************************************************/
 
@@ -145,7 +145,7 @@ typedef SHORT                       LDVCode;
 #define LDVX_WM_FAILED              ((UINT)(LDVX_APP + 3))      /* 34411 */
 
 /*
- * Windows Messages for LonWorks Interface (e.g. USBLTA)
+ * Windows Messages for LON interface (e.g. U10)
  * detachment/attachment notifications
  *
  * NOTE: This feature was added in OpenLDV 2.0.
@@ -180,16 +180,17 @@ LPCSTR LDVAPI ldv_get_version(VOID);
 
 
 /*
- * Opens specified network interface device,
+ * Opens specified LON network interface device,
  * returning a handle to be used in subsequent calls.
  *
  * See also ldvx_open and ldv_open_cap.
  */
+#ifdef windows
 LDVCode LDVAPI ldv_open(
     IN  LPCSTR     id,              /* name of network interface device */
     OUT LdvHandle* handle           /* pointer to returned session handle */
 );
-
+#endif // windows
 
 /*
  * Opens specified network interface device,
@@ -200,21 +201,23 @@ LDVCode LDVAPI ldv_open(
  *
  * NOTE: This function was added in OpenLDV/LNS (V3.20.29).
  */
+#ifdef windows
 LDVCode LDVAPI ldvx_open(
     IN  LPCSTR     id,              /* name of network interface device */
     OUT LdvHandle* handle,          /* pointer to returned session handle */
     IN  HWND       hWnd,            /* Windows HWND to receive notifications */
     IN  LONG       tag              /* LPARAM to use in notification */
 );
-
+#endif // windows
 
 /*
  * Closes specified open session.
  */
+#ifdef windows
 LDVCode LDVAPI ldv_close(
     IN  LdvHandle handle            /* session handle (from ldv_open) */
 );
-
+#endif // windows
 
 /*
  * Reads a message from specified open session into specified buffer.
@@ -224,24 +227,26 @@ LDVCode LDVAPI ldv_close(
  * If specified buffer is too small, returns LDV_INVALID_BUF_LEN.
  * If packet contains no SICB, returns LDV_NOT_FOUND.
  */
+#ifdef windows
 LDVCode LDVAPI ldv_read(
     IN  LdvHandle handle,           /* session handle (from ldv_open) */
     OUT PVOID     msg_p,            /* pointer to buffer to receive message */
     IN  SHORT     len               /* length  of buffer to receive message */
 );
-
+#endif // windows
 
 /*
  * Writes a message to specified open session from specified buffer.
  * Message can be in SICB or LdvEx format and will be converted internally
  * as necessary.
  */
+#ifdef windows
 LDVCode LDVAPI ldv_write(
     IN LdvHandle handle,            /* session handle (from ldv_open) */
     IN PVOID     msg_p,             /* pointer to buffer containing message */
     IN SHORT     len                /* length  of message to write */
 );
-
+#endif // windows
 
 /*
  * Registers a Windows Event object.
@@ -249,12 +254,13 @@ LDVCode LDVAPI ldv_write(
  * After signaling, to ensure that all messages are retrieved,
  * clients should repeatedly call ldv_read until no more messages are
  * available (LDV_NO_MSG_AVAIL) or an error (other than LDV_NOT_FOUND).
- */
+ */ 
+#ifdef windows
 LDVCode LDVAPI ldv_register_event(
     IN LdvHandle handle,            /* session handle (from ldv_open) */
     IN HANDLE    event              /* event object to be signaled */
 );
-
+#endif // windows
 
 /*
  * Registers a Windows HWND object for receiving session change notifications.
@@ -262,24 +268,26 @@ LDVCode LDVAPI ldv_register_event(
  *
  * NOTE: This function was added in OpenLDV/LNS (V3.20.29).
  */
+#ifdef windows
 LDVCode LDVAPI ldvx_register_window(
     IN LdvHandle handle,            /* session handle (from ldv_open) */
     IN HWND      hWnd,              /* Windows HWND to receive notifications */
     IN LONG      tag                /* LPARAM to use in notification */
 );
-
+#endif // windows
 
 /*
  * Retrieves debugging information from the network interface.
  *
  * NOTE: This function is deprecated and provided for compatibility only.
  */
+#ifdef windows
 LDVCode LDVAPI ldv_get_debug_info(
     IN  LdvHandle handle,           /* session handle (from ldv_open) */
     OUT PVOID     data_p,           /* pointer to buffer to receive debug info */
     IN  SIZET     data_len          /* length  of buffer to receive debug info */
 );
-
+#endif // windows
 
 /*
  * Retrieves name of driver associated with specified
@@ -332,7 +340,7 @@ LDVCode LDVAPI ldvx_shutdown(VOID);
 
 /*
  * The LDVDriverID enumeration contains constants describing
- * the driver class of an associated LonWorks Interface device.
+ * the driver class of an associated LON interface device.
  *
  * NOTE: This feature was added in OpenLDV 2.0.
  */
@@ -343,8 +351,8 @@ enum LdvDriverID
     LDV_DRIVERID_ILON10      =   2,     /* i.LON-10 */
     LDV_DRIVERID_ILON100     =   3,     /* i.LON-100 */
     LDV_DRIVERID_ILON600     =   4,     /* i.LON-600 */
-    LDV_DRIVERID_LWIP        =   5,     /* LonWorks/IP Device */
-    LDV_DRIVERID_USBLTA      =   6,     /* USB LonTalk Adapter */
+    LDV_DRIVERID_LONIP       =   5,     /* LON/IP Device */
+    LDV_DRIVERID_U10_FT_AB   =   6,     /* U10 FT USB Network Interface Rev A and B */
     LDV_DRIVERID_SLTA10      =   7,     /* Serial LonTalk Adapter */
     LDV_DRIVERID_PCC10       =   8,     /* PCC-10 PC Card Adapter */
     LDV_DRIVERID_PCLTA10     =   9,     /* PCLTA-10 Adapter */
@@ -352,9 +360,12 @@ enum LdvDriverID
     LDV_DRIVERID_PCLTA21     =  11,     /* PCLTA-21 Adapter */
     LDV_DRIVERID_TA          =  12,     /* Turnaround Channel */
     LDV_DRIVERID_RNISIM      =  13,     /* RNI Simulator */
-    LDV_DRIVERID_U50         =  14,     /* U50 USB Serial LonTalk Adapter */
+    LDV_DRIVERID_U60_FT      =  14,     /* U60 FT USB Network Interface */
+    LDV_DRIVERID_U60_TP1250  =  15,     /* U60 TP-1250 USB Network Interface */
+    LDV_DRIVERID_U10_FT_C    =  16,     /* U10 FT USB Network Interface Rev C */
+    LDV_DRIVERID_SMARTSERVER =  17,     /* SmartServer and SmartConnect */
 
-    /* standard driver IDs through 127 are reserved for Echelon use */
+    /* Driver IDs through 127 are reserved for EnOcean use */
     LDV_DRIVERID_STD_MAX     = 127,
     LDV_DRIVERID_DONT_CHANGE =  -1
 };
@@ -364,19 +375,19 @@ typedef SHORT               LDVDriverID;
 
 /*
  * The LDVDriverType enumeration contains constants describing
- * the driver type of an associated LonWorks Interface device.
+ * the driver type of an associated LON interface device.
  *
  * NOTE: This feature was added in OpenLDV 2.0.
  */
 enum LdvDriverType
 {
     LDV_DRIVERTYPE_UNKNOWN =   0,       /* Unknown (or unspecified) Driver */
-    LDV_DRIVERTYPE_LNI     =   1,       /* Local  Network Interface Driver (Windows) */
+    LDV_DRIVERTYPE_LNI     =   1,       /* Local Network Interface Driver */
     LDV_DRIVERTYPE_RNI     =   2,       /* Remote Network Interface Driver (xDriver) */
-    LDV_DRIVERTYPE_USB     =   3,       /* USB LTA Driver */
-    LDV_DRIVERTYPE_U50     =   4,       /* U50 USB LTA Driver */
+    LDV_DRIVERTYPE_USB     =   3,       /* U10 USB LTA Driver */
+    LDV_DRIVERTYPE_U60     =   4,       /* U60 USB LTA Driver */
 
-    /* standard driver types through 127 are reserved for Echelon use */
+    /* Driver types through 127 are reserved for EnOcean use */
     LDV_DRIVERTYPE_STD_MAX = 127,
 };
 
@@ -385,7 +396,7 @@ typedef SHORT               LDVDriverType;
 
 /*
  * The LDVDriverInfo structure contains information describing a specific
- * LonWorks Interfaces device driver (as identified by its driver ID).
+ * LON interface device driver (as identified by its driver ID).
  *
  * size         The size (in bytes) of this structure.  This field must be set
  *              before calling any of the set functions that pass this
@@ -414,7 +425,7 @@ typedef const LDVDriverInfo*    LDVDriverInfoPtr;       /* (read-only) */
 
 
 /*
- * Retrieves information about the specified LonWorks Interface
+ * Retrieves information about the specified LON interface
  * device driver class.
  *
  * nDriverId    The driver class ID of the driver whose information is being
@@ -438,7 +449,7 @@ LDVCode LDVAPI ldv_get_driver_info(
 
 
 /*
- * Creates or modifies the information about the specified LonWorks Interface
+ * Creates or modifies the information about the specified LON interface
  * device driver class.  Before calling this function, the LDVDriverInfo
  * structure pointed to by pDriverInfo must be initialized correctly:
  *
@@ -588,7 +599,7 @@ typedef DWORD                       LDVDeviceCaps;
 
 /*
  * The LDVDeviceInfo structure contains information describing a specific
- * LonWorks Interface device (as identified by its name).
+ * LON interface device (as identified by its name).
  *
  * size         The size (in bytes) of this structure.  This field must be set
  *              before calling any of the set functions that pass this structure
@@ -633,9 +644,9 @@ typedef const LDVDeviceInfo*    LDVDeviceInfoPtr;       /* (read-only) */
 
 
 /*
- * Retrieves information about the specified LonWorks Interface device.
+ * Retrieves information about the specified LON interface device.
  *
- * szDevice     The name of the LonWorks Interface device whose information
+ * szDevice     The name of the LON interface device whose information
  *              is being requested.
  * ppDeviceInfo A pointer to an LDVDeviceInfo pointer to receive the
  *              information of the requested device.  Note that the contents
@@ -656,7 +667,7 @@ LDVCode LDVAPI ldv_get_device_info(
 
 
 /*
- * Creates or modifies the information about the specified LonWorks Interface
+ * Creates or modifies the information about the specified LON interface
  * device.  Before calling this function, the LDVDeviceInfo structure pointed
  * to by pDeviceInfo must be initialized correctly:
  *
@@ -745,7 +756,7 @@ typedef SHORT               LDVCombineFlags;
 
 /*
  * The LDVDevices structure contains information describing a set of
- * LonWorks Interface devices.
+ * LON interface devices.
  *
  * nInfos       The number of Device Info pointers in the array
  *              pointed to by pInfos.
@@ -763,7 +774,7 @@ typedef struct LDVDevices
 
 
 /*
- * Retrieves information about the LonWorks Interface devices
+ * Retrieves information about the LON interface devices
  * that match the specified set of capabilities.
  *
  * nCaps        An LDVDeviceCaps value specifying the device capabilities
